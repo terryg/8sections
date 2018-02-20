@@ -14,18 +14,19 @@
     %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
     %script
       new Chartist.Line('#chart1', {
-
+      labels: #{@rows.collect{|r| r[0]}},
       series: [[
       - @rows.each do |row|
-        row[1]
+        #{row[1]},
       ]]
-      });
-      
+      }, {
+      axisY: {
+      high: 200,
+      low: 0
+      }});
+    
     %div
       Source <a href="http://www.doe.mass.edu/infoservices/reports/enroll/">Mass DESE Enrollment Data</a>
-      - @rows.each do |row|
-        %div
-          = row
 
     %hr
     %div
