@@ -11,10 +11,13 @@
     %div
       %h2 #{@district.name} #{@grade.name} Enrollment
 
+    %div
+      
+
     %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
     %script
       new Chartist.Line('#chart1', {
-      labels: #{@rows.collect{|r| r.time_dimension.year}},
+      labels: #{@years}},
       series: [[
       - @rows.each do |row|
         #{row.enrollment},
@@ -24,7 +27,25 @@
       high: 200,
       low: 0
       }});
-    
+    %div
+      %div
+        Raw Data
+      %div
+        %table{border: 1}
+          %thead
+            %tr
+              %th
+                Year
+              - @years.each do |year|
+                %th
+                  #{year}
+          %tbody
+            %tr
+              %td
+                ENR
+              - @rows.each do |row|
+                %td
+                  #{row.enrollment}
     %div
       Source <a href="http://www.doe.mass.edu/infoservices/reports/enroll/">Mass DESE Enrollment Data</a>
 
