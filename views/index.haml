@@ -14,7 +14,7 @@
     %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
     %script
       new Chartist.Line('#chart1', {
-      labels: #{@rows.collect{|r| r.year}},
+      labels: #{@rows.collect{|r| r.time_dimension.year}},
       series: [[
       - @rows.each do |row|
         #{row.enrollment},
@@ -31,5 +31,5 @@
     %hr
     %div
       Terry Lorber<br/>
-      2018-02-19<br/>
+      2018-03-06<br/>
       %em tgl (at) rideside (dot) net

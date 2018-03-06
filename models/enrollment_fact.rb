@@ -7,12 +7,9 @@ class EnrollmentFact
 
   property :id, Serial, :index => true
   property :enrollment, Integer
+
   belongs_to :district_dimension
   belongs_to :grade_dimension
   belongs_to :time_dimension
 
-  def year
-    time_dimension.year
-  end
-  
 end
