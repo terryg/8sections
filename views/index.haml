@@ -11,9 +11,6 @@
     %div
       %h2 #{@district.name} #{@grade.name} Enrollment
 
-    %div
-      
-
     %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
     %script
       new Chartist.Line('#chart1', {
@@ -49,6 +46,29 @@
     %div
       Source <a href="http://www.doe.mass.edu/infoservices/reports/enroll/">Mass DESE Enrollment Data</a>
 
+    %hr
+    %div
+      %form{method: 'GET', action: '/'}
+        %ul
+          %li
+            %label{for: 'district'}
+              District
+            %select{name: 'district'}
+              - @districts.each do |district|
+                %option
+                  = district.name
+
+          %li
+            %label{for: 'grade'}
+              Grade
+            %select{name: 'grade'}
+              - @grades.each do |grade|
+                %option
+                  = grade.name
+
+          %li
+            %input{type: 'submit'}
+            
     %hr
     %div
       Terry Lorber<br/>
