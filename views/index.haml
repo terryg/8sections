@@ -14,10 +14,10 @@
     %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
     %script
       new Chartist.Line('#chart1', {
-      labels: #{@rows.collect{|r| r[0]}},
+      labels: #{@rows.collect{|r| r.year}},
       series: [[
       - @rows.each do |row|
-        #{row[1]},
+        #{row.enrollment},
       ]]
       }, {
       axisY: {
