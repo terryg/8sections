@@ -18,7 +18,15 @@ class App < Sinatra::Base
                                order: [ :time_dimension_id.desc ])
 
     @years = @rows.collect{|r| r.time_dimension.year}
-                                        
+
+    @high = 0
+    @rows.each do |row|
+      step = row.enrollment / 100
+      high = step * 100 + 100
+      @high = high if high > @high
+    end
+
+      
     haml :index
   end
   

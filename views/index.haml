@@ -1,76 +1,120 @@
 %html
   %head
     %title 8 Sections
+    %link{rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', integrity: 'sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u', crossorigin: 'anonymous'}
+    %link{rel: 'stylesheet', href: 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css', integrity: 'sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp', crossorigin: 'anonymous'}
+
+    %link{rel: 'stylesheet', href: '/css/dashboard.css'}
+    
     %link{rel: 'stylesheet', href: '//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css'}
+    
     %script{src: '//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js'}
       
   %body
-    %div
-      %h1 8 Sections
-    %hr
-    %div
-      %h2 #{@district.name} #{@grade.name} Enrollment
-
-    %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
-    %script
-      new Chartist.Line('#chart1', {
-      labels: #{@years}},
-      series: [[
-      - @rows.each do |row|
-        #{row.enrollment},
-      ]]
-      }, {
-      axisY: {
-      high: 200,
-      low: 0
-      }});
-    %div
-      %div
-        Raw Data
-      %div
-        %table{border: 1}
-          %thead
-            %tr
-              %th
-                Year
-              - @years.each do |year|
-                %th
-                  #{year}
-          %tbody
-            %tr
-              %td
-                ENR
-              - @rows.each do |row|
-                %td
-                  #{row.enrollment}
-    %div
-      Source <a href="http://www.doe.mass.edu/infoservices/reports/enroll/">Mass DESE Enrollment Data</a>
-
-    %hr
-    %div
-      %form{method: 'GET', action: '/'}
-        %ul
-          %li
-            %label{for: 'district'}
-              District
-            %select{name: 'district'}
-              - @districts.each do |district|
-                %option
-                  = district.name
-
-          %li
-            %label{for: 'grade'}
-              Grade
-            %select{name: 'grade'}
-              - @grades.each do |grade|
-                %option
-                  = grade.name
-
-          %li
-            %input{type: 'submit'}
+    
+    %nav{class: 'navbar navbar-inverse navbar-fixed-top'}
+      %div{class: 'container-fluid'}
+        %div{class: 'navbar-header'}
+          %h1
+            %a{href: '/'}
+              8 Sections
             
-    %hr
-    %div
-      Terry Lorber<br/>
-      2018-03-06<br/>
-      %em tgl (at) rideside (dot) net
+    %div{class: 'container-fluid'}
+      %div{class: 'row'}
+        
+        %div{class: 'col-sm-3 col-md-2 sidebar'}
+          %ul{class: 'nav nav-sidebar'} 
+            %li
+              %a{href: '/?district=Salem&grade=K'}
+                Salem
+            %li
+              %a{href: '/?district=Swampscott&grade=K'}
+                Swampscott
+            %li
+              %a{href: '/?district=Lynn&grade=K'}
+                Lynn 
+            %li
+              %a{href: '/?district=Lynnfield&grade=K'}
+                Lynnfield
+            %li
+              %a{href: '/?district=Marblehead&grade=K'}
+                Marblehead
+                
+        %div{class: 'col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main'}
+          %h2{class: 'page-header'} #{@district.name} #{@grade.name} Enrollment
+
+          %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
+            %script
+              new Chartist.Line('#chart1', {
+              labels: #{@years},
+              series: [[
+              - @rows.each do |row|
+                #{row.enrollment},
+              ]]
+              }, {
+              axisY: {
+              high: #{@high},
+              low: 0
+              }});
+
+          %h3{class: 'sub-header'}
+            Raw Data
+
+          %div{class: 'table-responsive'}   
+            %table{class: 'table table-striped'}   
+              %thead
+                %th
+                  Year
+                  - @years.each do |year|
+                    %th
+                      #{year}
+
+              %tbody
+                %tr
+                  %td
+                    ENR
+                    - @rows.each do |row|
+                      %td
+                        #{row.enrollment}
+                        
+          %h3{class: 'sub-header'}
+            Source
+
+          %a{href: 'http://www.doe.mass.edu/infoservices/reports/enroll/'}
+            Mass DESE Enrollment Data
+
+          %h3{class: 'sub-header'}
+            Query
+          
+          %div
+            %form{method: 'GET', action: '/'}
+              %ul
+                %li
+                  %label{for: 'district'}
+                    District
+                    %select{name: 'district'}
+                      - @districts.each do |district|
+                        %option
+                          = district.name
+                      
+                %li
+                  %label{for: 'grade'}
+                    Grade
+                    %select{name: 'grade'}
+                      - @grades.each do |grade|
+                        %option
+                          = grade.name
+
+                %li
+                  %input{type: 'submit'}
+                  
+                   
+          %h3{class: 'sub-header'}
+            Author
+
+          %div
+            Terry Lorber<br/>
+            Swampscott, MA<br/> 
+            %em tgl (at) rideside (dot) net<br/>
+            <br/>            
+            2018-03-27
