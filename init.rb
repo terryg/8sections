@@ -10,7 +10,7 @@ require 'sinatra'
 configure { set :server, :puma }
 
 DataMapper::Logger.new($stdout, :debug)
-DataMapper.setup(:default, 'postgres://tgl:spam42@localhost/eight_sections_development')
+DataMapper.setup(:default, ENV['DATABASE_URL'])
 
 require './models/enrollment_fact'
 
