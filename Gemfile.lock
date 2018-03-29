@@ -55,8 +55,6 @@ GEM
     do_postgres (0.10.17)
       data_objects (= 0.10.17)
     fastercsv (1.5.5)
-    foreman (0.84.0)
-      thor (~> 0.19.1)
     haml (5.0.4)
       temple (>= 0.8.0)
       tilt
@@ -87,7 +85,6 @@ PLATFORMS
 DEPENDENCIES
   data_mapper
   dm-postgres-adapter
-  foreman (~> 0.84.0)
   haml (~> 5.0, >= 5.0.4)
   pg
   puma (~> 3.11.2)
