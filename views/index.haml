@@ -24,32 +24,33 @@
         %div{class: 'col-sm-3 col-md-2 sidebar'}
           %ul{class: 'nav nav-sidebar'} 
             %li
-              %a{href: '/?district=Salem&grade=K'}
+              %a{href: '/?districts=Salem&grade=K'}
                 Salem
             %li
-              %a{href: '/?district=Swampscott&grade=K'}
+              %a{href: '/?districts=Swampscott&grade=K'}
                 Swampscott
             %li
-              %a{href: '/?district=Lynn&grade=K'}
+              %a{href: '/?districts=Lynn&grade=K'}
                 Lynn 
             %li
-              %a{href: '/?district=Lynnfield&grade=K'}
+              %a{href: '/?districts=Lynnfield&grade=K'}
                 Lynnfield
             %li
-              %a{href: '/?district=Marblehead&grade=K'}
+              %a{href: '/?districts=Marblehead&grade=K'}
                 Marblehead
                 
         %div{class: 'col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main'}
-          %h2{class: 'page-header'} #{@district.name} #{@grade.name} Enrollment
+          %h2{class: 'page-header'}= "#{@districts.collect{|d| d.name}.join(", ")} #{@grade.name} Enrollment"
 
           %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
             %script
               new Chartist.Line('#chart1', {
               labels: #{@years},
-              series: [[
-              - @rows.each do |row|
-                #{row.enrollment},
-              ]]
+              lineTension: 0,
+              series: [
+              - @series.each do |series|
+                = "[#{series.collect{|s| s.enrollment}.join(',')}],"
+              ]
               }, {
               axisY: {
               high: #{@high},
@@ -63,18 +64,16 @@
             %table{class: 'table table-striped'}   
               %thead
                 %th
-                  Year
-                  - @years.each do |year|
-                    %th
-                      #{year}
+                - @years.each do |year|
+                  %th
+                    #{year}
 
               %tbody
-                %tr
-                  %td
-                    ENR
-                    - @rows.each do |row|
-                      %td
-                        #{row.enrollment}
+                - @series.each do |series|
+                  %tr
+                    %td= series.district_dimension.first.name
+                    - series.each do |s|
+                      %td= s.enrollment
                         
           %h3{class: 'sub-header'}
             Source
@@ -92,7 +91,7 @@
                   %label{for: 'district'}
                     District
                     %select{name: 'district'}
-                      - @districts.each do |district|
+                      - @all_districts.each do |district|
                         %option
                           = district.name
                       
@@ -100,7 +99,7 @@
                   %label{for: 'grade'}
                     Grade
                     %select{name: 'grade'}
-                      - @grades.each do |grade|
+                      - @all_grades.each do |grade|
                         %option
                           = grade.name
 
@@ -116,7 +115,7 @@
             Swampscott, MA<br/> 
             %em tgl (at) rideside (dot) net<br/>
             <br/>            
-            2018-03-27
+            2018-04-05
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116554956-1"></script>

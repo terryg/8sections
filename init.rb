@@ -10,7 +10,7 @@ require 'sinatra'
 configure { set :server, :puma }
 
 DataMapper::Logger.new($stdout, :debug)
-DataMapper.setup(:default, ENV['HEROKU_POSTGRESQL_GRAY_URL'])
+DataMapper.setup(:default, ENV['DATABASE_URL'] || ENV['HEROKU_POSTGRESQL_GRAY_URL'])
 
 require './models/enrollment_fact'
 

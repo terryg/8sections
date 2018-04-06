@@ -4,28 +4,41 @@ require 'sinatra/base'
 class App < Sinatra::Base
 
   get '/' do
-    @districts = DistrictDimension.all 
-    @grades = GradeDimension.all
-   
-    @district = DistrictDimension.first(name: params[:district])
-    @grade = GradeDimension.first(name: params[:grade])
+    @all_districts = DistrictDimension.all 
+    @all_grades = GradeDimension.all
 
-    @district = DistrictDimension.first(name: 'Swampscott') if @district.nil?
-    @grade = GradeDimension.first(name: 'K') if @grade.nil? 
-   
-    @rows = EnrollmentFact.all(district_dimension_id: @district.id,
-                               grade_dimension_id: @grade.id,
-                               order: [ :time_dimension_id.desc ])
+    districts = params[:districts].split(',') || 'Swampscott'
+    grade = params[:grade] || 'K'
+    
+    @districts = DistrictDimension.all(name: districts)
+    @grade = GradeDimension.first(name: grade)
 
-    @years = @rows.collect{|r| r.time_dimension.year}
-
-    @high = 0
-    @rows.each do |row|
-      step = row.enrollment / 100
-      high = step * 100 + 100
-      @high = high if high > @high
+    @series = []
+    @districts.each do |d|
+      facts = EnrollmentFact.all(district_dimension_id: d.id,
+                                 grade_dimension_id: @grade.id,
+                                 order: [ :time_dimension_id.desc ])
+      puts "FACTS #{facts}"
+      @series.push(facts)
     end
 
+    puts "@SERIES #{@series}"
+
+    @years = []
+   
+    @high = 0
+    @series.each do |series|
+      puts "SERIES #{series}"
+      series.each do |s|
+        puts "S #{s}"
+        @years << s.time_dimension.year
+        step = s.enrollment / 100
+        high = step * 100 + 100
+        @high = high if high > @high
+      end
+    end
+
+    @years.uniq!
       
     haml :index
   end
