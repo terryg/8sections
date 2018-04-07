@@ -7,39 +7,41 @@ class App < Sinatra::Base
     @all_districts = DistrictDimension.all 
     @all_grades = GradeDimension.all
 
-    districts = params[:districts].split(',') || 'Swampscott'
-    grade = params[:grade] || 'K'
     
-    @districts = DistrictDimension.all(name: districts)
-    @grade = GradeDimension.first(name: grade)
+    districts = 'Swampscott'
+    districts = params[:districts].split(',') if params[:districts]
 
+    grades = 'K' 
+    grades = params[:grades].split(',') if params[:grades]
+   
+    @districts = DistrictDimension.all(name: districts)
+    @grades = GradeDimension.all(name: grades)
+    @years = TimeDimension.all(order: [ :id.desc ])
+
+    
     @series = []
     @districts.each do |d|
-      facts = EnrollmentFact.all(district_dimension_id: d.id,
-                                 grade_dimension_id: @grade.id,
-                                 order: [ :time_dimension_id.desc ])
+      facts = EnrollmentFact.aggregate(fields: [:enrollment.sum, :time_dimension_id],
+                                       
+                                       district_dimension_id: d.id,
+                                       grade_dimension_id: @grades.collect{|g| g.id})
+
       puts "FACTS #{facts}"
       @series.push(facts)
     end
 
     puts "@SERIES #{@series}"
 
-    @years = []
    
     @high = 0
     @series.each do |series|
-      puts "SERIES #{series}"
       series.each do |s|
-        puts "S #{s}"
-        @years << s.time_dimension.year
-        step = s.enrollment / 100
+        step = s[0] / 100
         high = step * 100 + 100
         @high = high if high > @high
       end
     end
 
-    @years.uniq!
-      
     haml :index
   end
   

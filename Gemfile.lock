@@ -83,6 +83,7 @@ PLATFORMS
 
 DEPENDENCIES
   data_mapper
+  dm-aggregates
   dm-postgres-adapter
   haml (~> 5.0, >= 5.0.4)
   pg

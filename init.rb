@@ -4,7 +4,7 @@ require 'dm-core'
 require 'dm-migrations'
 require 'dm-postgres-adapter'
 require 'dm-validations'
-require 'haml'
+require 'dm-aggregates'
 require 'sinatra'
 
 configure { set :server, :puma }
