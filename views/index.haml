@@ -40,7 +40,7 @@
                 Marblehead
                 
         %div{class: 'col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main'}
-          %h2{class: 'page-header'}= "#{@districts.collect{|d| d.name}.join(", ")} enrollement for grades #{@grades.collect{|g| g.name}.join(", ")}"
+          %h2{class: 'page-header'}= "#{@districts.collect{|d| d.name}.join(", ")} enrollment for grades #{@grades.collect{|g| g.name}.join(", ")}"
 
           %div{class: 'ct-chart ct-golden-section', id: 'chart1'}
             %script
