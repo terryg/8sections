@@ -46,12 +46,14 @@
             %script
               new Chartist.Line('#chart1', {
               labels: [#{@years.collect{|y| y.year}.join(",")}],
-              lineTension: 0,
               series: [
               - @series.each do |series|
                 = "[#{series.collect{|s| s[0]}.join(',')}],"
               ]
               }, {
+              lineSmooth: Chartist.Interpolation.none({
+              fillHoles: false
+              }),
               axisY: {
               high: #{@high},
               low: 0
@@ -66,12 +68,12 @@
                 %th
                 - @years.each do |year|
                   %th
-                    #{year}
+                    #{year.year}
 
               %tbody
                 - @series.each do |series|
                   %tr
-                    %td= "BLARG"
+                    %td
                     - series.each do |s|
                       %td= s[0]
                         
@@ -115,7 +117,7 @@
             Swampscott, MA<br/> 
             %em tgl (at) rideside (dot) net<br/>
             <br/>            
-            2018-04-05
+            2018-05-14
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-116554956-1"></script>
