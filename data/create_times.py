@@ -31,7 +31,8 @@ try:
         {'id':12, 'year':2014},
         {'id':13, 'year':2015},
         {'id':14, 'year':2016},
-        {'id':15, 'year':2017}
+        {'id':15, 'year':2017},
+        {'id':16, 'year':2018}
     ]
 
     for item in my_rows:
