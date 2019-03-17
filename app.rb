@@ -11,7 +11,7 @@ class App < Sinatra::Base
     districts = ['Swampscott']
     districts = params[:districts].split(',') if params[:districts]
 
-    grades = ['K','gr1','gr2','gr3'] 
+    grades = ['K','gr1','gr2','gr3', 'gr4']
     grades = params[:grades].split(',') if params[:grades]
    
     @districts = DistrictDimension.all(name: districts)
