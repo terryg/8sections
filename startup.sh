@@ -6,6 +6,7 @@ then
   bundle install --without development test --path vendor/bundle
   bundle exec puma -C config/puma.rb
 else
+  bundle add shotgun
   bundle install --path vendor/bundle
   if [ "$RACK_ENV" == "test" ]; 
   then
