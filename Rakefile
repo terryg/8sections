@@ -51,8 +51,7 @@ namespace :db do
       end
 
       xl = Roo::Spreadsheet.open("./data/District-Grade--#{y}.#{ext}", extension: ext.to_sym)
-      #puts xl.info
-      #puts t.inspect
+
       sheet = xl.sheet(0)
       
       for i in sheet.first_row..sheet.last_row
@@ -60,31 +59,19 @@ namespace :db do
                                               { name: sheet.cell(i,name_index),
                                                 county: sheet.cell(i,county_index) })
 
-        #puts d.inspect
         count = tally_index
         all = GradeDimension.all
         all.each do |g|
-          #puts sheet.cell(i, count-1)
-          puts "count --> #{sheet.cell(i, count)}"
-          #puts sheet.cell(i, count+1)
-          #puts "---"
-          
           if t.id && d.id && g.id && d.code != "0000"
-            puts t.inspect
-            puts d.inspect
-            puts g.inspect
-            
             EnrollmentFact.first_or_create(
               time_dimension: t,
               district_dimension: d,
               grade_dimension: g,
               enrollment: sheet.cell(i,count)
             )
-
           end
 
           count = count + 1
-
         end
       end
     end
