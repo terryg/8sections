@@ -10,8 +10,12 @@ class App < Sinatra::Base
     districts = ['Swampscott']
     districts = params[:districts].split(',') if params[:districts]
 
-    grades = ['K','GR1','GR2','GR3','GR4']
-    grades = params[:grades].split(',') if params[:grades]
+    grades = Array.new
+    %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22].each do |g|
+      grades.push(g) if !params[g].nil?
+    end
+
+    grades = %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22] if grades.empty?
 
     puts "districts #{districts}"
     puts "grades #{grades}"
@@ -26,7 +30,7 @@ class App < Sinatra::Base
                                        
                                        district_dimension_id: d.id,
                                        grade_dimension_id: @grades.collect{|g| g.id},
-                                       order: [ :time_dimension_id.desc ])
+                                       order: [ :time_dimension_id.asc ])
       facts.each do |f|
         f << TimeDimension.first(id: f[1]).year
         puts "FACT #{f.inspect}"
