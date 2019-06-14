@@ -7,12 +7,12 @@ class App < Sinatra::Base
     @all_districts = DistrictDimension.all 
     @all_grades = GradeDimension.all
 
-    districts = ['Swampscott']
+    districts = ['Abington']
     districts = params[:districts].split(',') if params[:districts]
 
     grades = Array.new
-    %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22].each do |g|
-      grades.push(g) if !params[g].nil?
+    @all_grades.each do |g|
+      grades.push(g.name) if !params[g.name].nil?
     end
 
     grades = %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22] if grades.empty?

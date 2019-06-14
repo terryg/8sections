@@ -40,14 +40,18 @@
                 Marblehead
                 
         %div{class: 'col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main'}
-          %h2{class: 'page-header'}= "#{@districts.collect{|d| d.name}.join(" & ")}"
 
           %form{method: 'GET', action: '/'}
             %div{class: 'form-group'}
-              - %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22].each do |w|
+              %select{name: 'districts'} 
+                - @all_districts.each do |d|
+                  %option{value: d.name, selected: params['districts'] == d.name}= d.name
+
+            %div{class: 'form-group'}
+              - @all_grades.each do |g|
                 %label{class: 'checkbox-inline'}
-                  %input{name: w, type: 'checkbox', checked: !params[w].nil?}
-                  = w
+                  %input{name: g.name, type: 'checkbox', checked: !params[g.name].nil?}
+                  = g.name
 
             %div{class: 'form-group'}
               %button{type: 'submit'}= 'Submit'
