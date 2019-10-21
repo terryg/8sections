@@ -1,4 +1,6 @@
-require './init'
+require_relative './init'
+
+require 'nokogiri'
 require 'rake/testtask'
 require 'roo'
 require 'roo-xls'
@@ -31,6 +33,7 @@ namespace :db do
     GradeDimension.first_or_create(sequence: 14, name: '22')
 
     for y in 2003..2018
+    #if false
       t = TimeDimension.first_or_create(year: y)
 
       ext = "xls"
@@ -73,6 +76,44 @@ namespace :db do
 
           count = count + 1
         end
+      end
+    end
+
+    for y in 1997..2017
+      time_dimension = TimeDimension.first_or_create(year: y)
+    
+      doc = Nokogiri::HTML.parse(open("./data/Average-Salary--#{y}.html"))
+      rows = doc.xpath('//table/tbody/tr')
+      details = rows.collect do |row|
+        detail = {}
+        [
+          [:name, 'td[1]/a/text()'],
+          [:code, 'td[2]/text()'],
+          [:total, 'td[3]/text()'],
+          [:average, 'td[4]/text()'],
+          [:fte, 'td[5]/text()']
+        ].each do |name, xpath|
+          detail[name] = row.at_xpath(xpath).to_s.strip 
+        end
+        detail[:year] = y
+        detail
+      end
+      
+      details.each do |d|
+        code = d[:code][0,4]
+        total = d[:total].gsub(/\D/,'').to_i
+        average = d[:average].gsub(/\D/,'').to_i
+        fte = d[:fte].to_i
+
+        district_dimension = DistrictDimension.first_or_create(code: code)
+      
+        SalaryFact.first_or_create(
+          total: total,
+          average: average,
+          full_time_employees: fte,
+          district_dimension: district_dimension,
+          time_dimension: time_dimension
+        )
       end
     end
   end

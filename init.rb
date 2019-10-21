@@ -12,7 +12,8 @@ configure { set :server, :puma }
 #DataMapper::Logger.new($stdout, :debug)
 DataMapper.setup(:default, ENV['DATABASE_URL'] || 'postgres://eightsections:eightsections@localhost:5432/eightsections_development')
 
-require './models/enrollment_fact'
+require_relative './models/enrollment_fact'
+require_relative './models/salary_fact'
 
 DataMapper.finalize
 DataMapper.auto_upgrade!
