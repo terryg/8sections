@@ -2,20 +2,10 @@
  * Base structure
  */
 
-/* Move down content because we have a fixed navbar that is 50px tall */
-body {
-  padding-top: 50px;
-}
-
 
 /*
  * Global add-ons
  */
-
-.sub-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
-}
 
 /*
  * Top navigation
@@ -102,4 +92,30 @@ body {
 .placeholder img {
   display: inline-block;
   border-radius: 50%;
+}
+
+.ct-series-a .ct-line, .ct-series-a .ct-point, .ct-slice-donut {
+  stroke: #000000;
+  stroke-width: 5px;
+}
+
+.ct-series-b .ct-line, .ct-series-b .ct-point, .ct-slice-donut {
+  stroke: #ff3322;
+  stroke-width: 1px;
+}
+
+.ct-chart {
+  margin: auto;
+  height: 600px;
+  width: 800px;
+}
+
+.ct-label {
+  font-size: 1.3rem !important;
+}
+
+.ct-label.ct-horizontal.ct-end {
+  white-space:nowrap;
+  writing-mode:vertical-lr; 
+  transform:  translateY(-10%);
 }

@@ -1,0 +1,58 @@
+- if @districts[0].primary
+  %style
+    \.ct-series-a .ct-line, .ct-series-a .ct-point, .ct-slice-donut { stroke: #{@districts[0].primary_color}; }
+
+%span
+  District Enrollment 2003-2018 for #{@districts[0].name}
+%div{class: 'ct-chart ct-golden-section', id: 'chart1'}
+  %script
+    new Chartist.Line('#chart1', {
+    labels: [#{@years.collect{|y| y.year}.join(",")}],
+    series: [
+    - @series.each do |series|
+      = "[#{series.collect{|s| s[0]}.join(',')}],"
+    ]
+    }, {
+    lineSmooth: Chartist.Interpolation.none({
+    fillHoles: false
+    }),
+    axisY: {
+    high: #{@high},
+    low: 0
+    }});
+
+%form{method: 'GET', action: '/enrollment'}
+  %div{class: 'form-group'}
+    %input{name: 'districts', type: 'hidden', value: @districts.collect{|d| d.name}.join(',')}
+    - @all_grades.each do |g|
+      %label{class: 'checkbox-inline'}
+        %input{name: g.name, type: 'checkbox', checked: !params[g.name].nil?}
+        = g.name
+
+  %div{class: 'form-group'}
+    %button{type: 'submit'}= 'Submit'
+    
+%div
+  Raw Data
+
+%div{class: 'table-responsive'}   
+  %table{class: 'table table-striped'}   
+    %thead
+      %th
+      - @years.each do |year|
+        %th
+          #{year.year}
+
+    %tbody
+      - @districts.each_with_index do |d, i|
+        %tr
+          %td
+            = d.name
+          - @series[i].each do |s|
+            %td= s[0]
+              
+Source
+
+%a{href: 'http://www.doe.mass.edu/infoservices/reports/enroll/'}
+  Mass DESE Enrollment Data         
+

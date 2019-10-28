@@ -3,11 +3,18 @@ require 'sinatra/base'
 
 class App < Sinatra::Base
 
-  get '/' do
-    @all_districts = DistrictDimension.all 
-    @all_grades = GradeDimension.all
+  before do
+    set_instance_variables
+  end
 
-    districts = ['Abington']
+  get '/' do
+    @years = TimeDimension.all(order: [ :id.asc ])
+    @series = []
+    haml :index
+  end
+
+  get '/enrollment' do
+    districts = ['Swampscott']
     districts = params[:districts].split(',') if params[:districts]
 
     grades = Array.new
@@ -16,13 +23,11 @@ class App < Sinatra::Base
     end
 
     grades = %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22] if grades.empty?
-
-    puts "districts #{districts}"
-    puts "grades #{grades}"
     
     @districts = DistrictDimension.all(name: districts)
+
     @grades = GradeDimension.all(name: grades)
-    @years = TimeDimension.all(order: [ :id.asc ])
+    @years = TimeDimension.all(:year.gte => 2003, :order => [ :id.asc ])
     
     @series = []
     @districts.each do |d|
@@ -33,16 +38,10 @@ class App < Sinatra::Base
                                        order: [ :time_dimension_id.asc ])
       facts.each do |f|
         f << TimeDimension.first(id: f[1]).year
-        puts "FACT #{f.inspect}"
       end
-      puts "FACTS #{facts}"
       @series.push(facts)
     end
 
-    @years << TimeDimension.new(year: 2019)
-    @years << TimeDimension.new(year: 2020)
-    @years << TimeDimension.new(year: 2021)
-    
     @high = 0
     @series.each do |series|
       series.each do |s|
@@ -52,37 +51,77 @@ class App < Sinatra::Base
       end
     end
 
-    predictions = []
+    @series.each do |y|
+      n = y[0].length
+
+      y_bar = y[0].reduce(0){|sum,i| sum + i} / n
+
+      x = @years.collect{|yr| yr.year}
+      x_bar = x.reduce(0){|sum,i| sum + i} / n
+
+      s_x = x.reduce(0){|sum,i| sum + (i - x_bar)*(i - x_bar)}
+
+      i = 0
+      s_x_y = 0
+      while i < n
+        s_x_y = s_x_y + (x[i] - x_bar)*(y[0][i] - y_bar)
+        i = i + 1
+      end
+
+      m = s_x_y/s_x
+
+       b = y_bar - m * x_bar
+
+       puts "m #{m}"
+       puts "b #{b}"
+
+       puts "#{m / y_bar.to_f}"
+    end
+
+    haml :enrollment
+  end
+  
+  get '/salaries' do
+    districts = ['Swampscott']
+    districts = params[:districts].split(',') if params[:districts]
+
+    @districts = DistrictDimension.all(name: districts)
+    @districts.push(DistrictDimension.first(code: '0000'))
+
+    @years = TimeDimension.all(:year.gte => 1997, :year.lte => 2017, :order => [ :year.asc ])
+    @labels = @years.collect{|y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}
     
-    @series.each do |series|
-      n = series.length
-      y = series.collect{|s| s[0]}
-      s = y.inject(0){|sum,i| sum + i}
-      puts "n #{n}"
-      puts "y #{y}"
-      puts "SUM #{s}"
-      puts "AVG #{s/n}"
-      y_bar = s/n
+    @series = []
+    @districts.each do |d|
+      pp @years.collect{|y| y.id}
+      facts = SalaryFact.all(time_dimension_id: @years.collect{|y| y.id},
+                             district_dimension_id: d.id)
+      pp facts
+      facts.sort!{|a,b| a.time_dimension.year <=> b.time_dimension.year}
+      @series.push(facts.collect{|f| f.average})
+    end
 
-      s_y = 0
-      y.each do |i|
-        puts "i #{i}"
-        puts "y_bar #{y_bar}"
-        s_y = s_y + (i - y_bar)*(i - y_bar)
-        puts "s_y #{s_y}"
-      end
+    pp @series
+
+    @high = 0
+    @series.each do |s|
       
-      x = series.collect{|s| s[2]}
-      s = x.inject(0){|sum,i| sum + i}
-      puts "x #{x}"
-      puts "SUM #{s}"
-      puts "AVG #{s/n}"
-      x_bar = s/n
+      pp s
 
-      s_x = 0
-      x.each do |i|
-        s_x = s_x + (i - x_bar)*(i - x_bar)
-      end
+      step = s.max / 100
+      high = step * 100 + 100
+      @high = high if high > @high
+    end
+
+    @series.each do |y|
+      n = y.length
+
+      y_bar = y.reduce(0){|sum,i| sum + i} / n
+
+      x = @years.collect{|yr| yr.year}
+      x_bar = x.reduce(0){|sum,i| sum + i} / n
+
+      s_x = x.reduce(0){|sum,i| sum + (i - x_bar)*(i - x_bar)}
 
       i = 0
       s_x_y = 0
@@ -91,34 +130,22 @@ class App < Sinatra::Base
         i = i + 1
       end
 
-      b = s_x_y/s_x
+      m = s_x_y/s_x
 
-      a = y_bar - b * x_bar
+       b = y_bar - m * x_bar
 
-      series << [nil, 0, 2019]
-      series << [nil, 0, 2020]
-      series << [nil, 0, 2021]
+       puts "m #{m}"
+       puts "b #{b}"
 
-      prediction = []
-
-      yr = 2003
-      while yr < 2019
-        prediction << [nil, 0, yr]
-        yr = yr + 1
-      end
-      
-      prediction << [b*2019+a, 0, 2019]
-      prediction << [b*2020+a, 0, 2020]
-      prediction << [b*2021+a, 0, 2021]
-
-      predictions << prediction
+       puts "#{m / y_bar.to_f}"
     end
 
-    predictions.each do |p|
-      @series << p
-    end
-    
-    haml :index
+    haml :salaries
   end
-  
+
+  def set_instance_variables
+    @all_districts = DistrictDimension.all 
+    @all_grades = GradeDimension.all
+  end
+
 end
