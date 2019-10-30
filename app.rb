@@ -10,6 +10,7 @@ class App < Sinatra::Base
   get '/' do
     @years = TimeDimension.all(order: [ :id.asc ])
     @series = []
+    @sidebar = 'hide'
     haml :index
   end
 

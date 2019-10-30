@@ -14,12 +14,13 @@
     .container-fluid
       .row
         .col-sm-3.col-md-2
-          = haml :sidebar, layout: false
+          - if @sidebar != 'hide'
+            = haml :sidebar, layout: false 
         .col-sm-9.col-md-10
           != yield
-      .row
-        .col-md-12
-          #footer
-            = haml :footer, layout: false        
-            = haml :google_analytics, layout: false
+      .row{style: "padding-bottom: 50px;"}
+
+    = haml :footer, layout: false        
+    
+    = haml :google_analytics, layout: false
 

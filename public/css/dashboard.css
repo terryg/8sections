@@ -106,8 +106,8 @@
 
 .ct-chart {
   margin: auto;
-  height: 600px;
-  width: 800px;
+  height: 400px;
+  width: 600px;
 }
 
 .ct-label {
@@ -118,4 +118,11 @@
   white-space:nowrap;
   writing-mode:vertical-lr; 
   transform:  translateY(-10%);
+}
+
+.footer {
+  width: 100%;
+  background-color: #f8f8f8;
+  border-color: #e7e7e7;
+  padding: 20px;
 }
