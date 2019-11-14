@@ -32,6 +32,8 @@ namespace :db do
     GradeDimension.first_or_create(sequence: 13, name: 'GR12')
     GradeDimension.first_or_create(sequence: 14, name: '22')
 
+    puts "--- extract, transform, load salary reports ---"
+    
     for y in 1997..2017
       time_dimension = TimeDimension.first_or_create(year: y)
     
@@ -57,14 +59,8 @@ namespace :db do
         total = d[:total].gsub(/\D/,'').to_i
         average = d[:average].gsub(/\D/,'').to_i
         fte = d[:fte].to_i
-
-        puts "CODE #{code}"
         
         district_dimension = DistrictDimension.first_or_create(code: code)
-      
-        pp district_dimension
-
-        puts "#{total} #{average} #{fte}"
 
         SalaryFact.first_or_create(
           total: total,
@@ -75,6 +71,8 @@ namespace :db do
         )
       end
     end
+
+    puts "--- now do enrollment ---"
     
     for y in 2003..2018
     #if false
