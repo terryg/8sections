@@ -81,7 +81,56 @@ class App < Sinatra::Base
 
     haml :enrollment
   end
-  
+
+  get '/employees' do
+    districts = ['Swampscott']
+    districts = params[:districts].split(',') if params[:districts]
+
+    @districts = DistrictDimension.all(name: districts)
+
+    @years = TimeDimension.all(:year.gte => 1997, :year.lte => 2017, :order => [ :year.asc ])
+    @labels = @years.collect{|y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse}
+    
+    @series = []
+    @districts.each do |d|
+      facts = SalaryFact.all(time_dimension_id: @years.collect{|y| y.id},
+                             district_dimension_id: d.id)
+      facts.sort!{|a,b| a.time_dimension.year <=> b.time_dimension.year}
+      @series.push(facts.collect{|f| f.full_time_employees})
+    end
+
+    @high = 0
+    @series.each do |s|
+      step = s.max / 10
+      high = step * 10 + 10
+      @high = high if high > @high
+    end
+
+    @series.each do |y|
+      n = y.length
+
+      y_bar = y.reduce(0){|sum,i| sum + i} / n
+
+      x = @years.collect{|yr| yr.year}
+      x_bar = x.reduce(0){|sum,i| sum + i} / n
+
+      s_x = x.reduce(0){|sum,i| sum + (i - x_bar)*(i - x_bar)}
+
+      i = 0
+      s_x_y = 0
+      while i < n
+        s_x_y = s_x_y + (x[i] - x_bar)*(y[i] - y_bar)
+        i = i + 1
+      end
+
+      m = s_x_y/s_x
+
+      b = y_bar - m * x_bar
+    end
+
+    haml :employees
+  end
+
   get '/salaries' do
     districts = ['Swampscott']
     districts = params[:districts].split(',') if params[:districts]

@@ -19,6 +19,9 @@ require_relative './models/district_dimension'
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
+d = DistrictDimension.first(name: 'Lexington')
+d.update(primary: '001b40') unless d.nil?
+
 d = DistrictDimension.first(name: 'Lynn')
 d.update(primary: '610301') unless d.nil?
 

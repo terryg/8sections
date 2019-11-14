@@ -1,0 +1,46 @@
+- if @districts[0].primary
+  %style
+    \.ct-series-a .ct-line, .ct-series-a .ct-point, .ct-slice-donut { stroke: #{@districts[0].primary_color}; }
+
+%span
+  Full Time Employees 1997-2017 for #{@districts[0].name}
+%div{class: 'ct-chart', id: 'chart1'}
+  %script
+    new Chartist.Line('#chart1', {
+    labels: [#{@years.collect{|y| y.year}.join(",")}],
+    series: [
+    - @series.each do |series|
+      = "#{series},"
+    ]
+    }, {
+    lineSmooth: Chartist.Interpolation.none({
+    fillHoles: false
+    }),
+    axisY: {
+    high: #{@high},
+    low: 0
+    }});
+
+%span
+  Raw Data
+
+%div{class: 'table-responsive'}   
+  %table{class: 'table table-striped'}   
+    %thead
+      %th
+      - @years.each do |year|
+        %th
+          #{year.year}
+
+    %tbody
+      - @districts.each_with_index do |d, i|
+        %tr
+          %td
+            = d.name
+          - @series[i].each do |s|
+            %td= s
+              
+Source
+
+%a{href: 'http://profiles.doe.mass.edu/statereport/teachersalaries.aspx'}
+  Mass DESE - Teacher Salaries Report
