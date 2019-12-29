@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rubygems'
 
 require 'dm-core'
@@ -9,8 +11,9 @@ require 'sinatra'
 
 configure { set :server, :puma }
 
-#DataMapper::Logger.new($stdout, :debug)
-DataMapper.setup(:default, ENV['DATABASE_URL'] || 'postgres://eightsections:eightsections@localhost:5432/eightsections_development')
+# DataMapper::Logger.new($stdout, :debug)
+DataMapper::Model.raise_on_save_failure = true
+DataMapper.setup(:default, ENV['DATABASE_URL'])
 
 require_relative './models/enrollment_fact'
 require_relative './models/salary_fact'
@@ -19,23 +22,23 @@ require_relative './models/district_dimension'
 DataMapper.finalize
 DataMapper.auto_upgrade!
 
-d = DistrictDimension.first(name: 'Lexington')
-d.update(primary: '001b40') unless d.nil?
+d = DistrictDimension.first(name: 'lexington')
+d&.update(primary: '001b40')
 
-d = DistrictDimension.first(name: 'Lynn')
-d.update(primary: '610301') unless d.nil?
+d = DistrictDimension.first(name: 'lynn')
+d&.update(primary: '610301')
 
-d = DistrictDimension.first(name: 'Lynnfield')
-d.update(primary: 'fbb20f') unless d.nil?
+d = DistrictDimension.first(name: 'lynnfield')
+d&.update(primary: 'fbb20f')
 
-d = DistrictDimension.first(name: 'Marblehead')
-d.update(primary: '000000') unless d.nil?
+d = DistrictDimension.first(name: 'marblehead')
+d&.update(primary: '000000')
 
-d = DistrictDimension.first(name: 'Salem')
-d.update(primary: 'ff1400') unless d.nil?
+d = DistrictDimension.first(name: 'salem')
+d&.update(primary: 'ff1400')
 
-d = DistrictDimension.first(name: 'Swampscott')
-d.update(primary: '010765') unless d.nil?
+d = DistrictDimension.first(name: 'swampscott')
+d&.update(primary: '010765')
 
-d = DistrictDimension.first(name: 'Scituate')
-d.update(primary: '2848b7') unless d.nil?
+d = DistrictDimension.first(name: 'scituate')
+d&.update(primary: '2848b7')

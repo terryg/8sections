@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative './init'
 
 require 'nokogiri'
@@ -12,10 +14,8 @@ Rake::TestTask.new do |t|
 end
 
 namespace :db do
-
   desc 'Create and populate the database.'
   task :seed do
-    
     GradeDimension.first_or_create(sequence: 0, name: 'PK')
     GradeDimension.first_or_create(sequence: 1, name: 'K')
     GradeDimension.first_or_create(sequence: 2, name: 'GR1')
@@ -32,11 +32,12 @@ namespace :db do
     GradeDimension.first_or_create(sequence: 13, name: 'GR12')
     GradeDimension.first_or_create(sequence: 14, name: '22')
 
-    puts "--- extract, transform, load salary reports ---"
-    
-    for y in 1997..2017
+    puts '--- extract, transform, load salary reports ---'
+
+    (1997..2018).each do |y|
+    #if false
       time_dimension = TimeDimension.first_or_create(year: y)
-    
+
       doc = Nokogiri::HTML.parse(open("./data/Average-Salary--#{y}.html"))
       rows = doc.xpath('//table/tbody/tr')
       details = rows.collect do |row|
@@ -48,20 +49,22 @@ namespace :db do
           [:average, 'td[4]/text()'],
           [:fte, 'td[5]/text()']
         ].each do |name, xpath|
-          detail[name] = row.at_xpath(xpath).to_s.strip 
+          detail[name] = row.at_xpath(xpath).to_s.strip
         end
         detail[:year] = y
         detail
       end
-      
-      details.each do |d|
-        code = d[:code][0,4]
-        total = d[:total].gsub(/\D/,'').to_i
-        average = d[:average].gsub(/\D/,'').to_i
-        fte = d[:fte].to_i
-        
-        district_dimension = DistrictDimension.first_or_create(code: code)
 
+      details.each do |d|
+        name = d[:name]
+        code = d[:code][0, 4]
+        total = d[:total].gsub(/\D/, '').to_i
+        average = d[:average].gsub(/\D/, '').to_i
+        fte = d[:fte].to_i
+
+        name = 'state total' if name.empty?
+
+        district_dimension = DistrictDimension.first_or_create({ code: code }, name: name.downcase)
         SalaryFact.first_or_create(
           total: total,
           average: average,
@@ -72,22 +75,20 @@ namespace :db do
       end
     end
 
-    puts "--- now do enrollment ---"
-    
-    for y in 2003..2018
-    #if false
+    puts '--- now do enrollment ---'
+
+    (2003..2019).each do |y|
+      # if false
       t = TimeDimension.first_or_create(year: y)
 
-      ext = "xls"
-      if y > 2012
-        ext = "xlsx"
-      end
+      ext = 'xls'
+      ext = 'xlsx' if y > 2012
 
       code_index = 1
       name_index = 2
-      county_index = 3 
+      county_index = 3
       tally_index = 5
-      
+
       if y == 2003 || y == 2004
         code_index = 2
         name_index = 3
@@ -98,28 +99,32 @@ namespace :db do
       xl = Roo::Spreadsheet.open("./data/District-Grade--#{y}.#{ext}", extension: ext.to_sym)
 
       sheet = xl.sheet(0)
-      
-      for i in sheet.first_row..sheet.last_row
-        d = DistrictDimension.first_or_create({ code: sheet.cell(i,code_index) },
-                                              { name: sheet.cell(i,name_index),
-                                                county: sheet.cell(i,county_index) })
 
-        count = tally_index
-        all = GradeDimension.all
-        all.each do |g|
-          if t.id && d.id && g.id && d.code != "0000"
-            EnrollmentFact.first_or_create(
-              time_dimension: t,
-              district_dimension: d,
-              grade_dimension: g,
-              enrollment: sheet.cell(i,count)
-            )
+      (sheet.first_row..sheet.last_row).each do |i|
+        code = sheet.cell(i, code_index)[0, 4] if sheet.cell(i, code_index)
+        name = sheet.cell(i, name_index)
+        county = sheet.cell(i, county_index)
+        
+        if code && name
+          d = DistrictDimension.first_or_create({ code: code }, { name: name, county: county })
+                                                 
+          count = tally_index
+          all = GradeDimension.all
+          all.each do |g|
+            if t.id && d.id && g.id
+              enrollment = sheet.cell(i, count).to_i
+              EnrollmentFact.first_or_create(
+                time_dimension: t,
+                district_dimension: d,
+                grade_dimension: g,
+                enrollment: enrollment
+              ) 
+            end
+
+            count += 1
           end
-
-          count = count + 1
         end
       end
     end
   end
-
 end

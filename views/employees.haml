@@ -3,7 +3,7 @@
     \.ct-series-a .ct-line, .ct-series-a .ct-point, .ct-slice-donut { stroke: #{@districts[0].primary_color}; }
 
 %span
-  Full Time Employees 1997-2017 for #{@districts[0].name}
+  Full Time Employees 1997-2018 for #{@districts[0].name.capitalize}
 %div{class: 'ct-chart', id: 'chart1'}
   %script
     new Chartist.Line('#chart1', {
