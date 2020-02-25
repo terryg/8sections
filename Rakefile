@@ -35,7 +35,7 @@ namespace :db do
     puts '--- extract, transform, load salary reports ---'
 
     (1997..2018).each do |y|
-    #if false
+      # if false
       time_dimension = TimeDimension.first_or_create(year: y)
 
       doc = Nokogiri::HTML.parse(open("./data/Average-Salary--#{y}.html"))
@@ -77,19 +77,19 @@ namespace :db do
 
     puts '--- now do enrollment ---'
 
-    (2003..2019).each do |y|
+    (2004..2019).each do |y|
       # if false
       t = TimeDimension.first_or_create(year: y)
 
       ext = 'xls'
-      ext = 'xlsx' if y > 2012
+      ext = 'xlsx' if y > 2013
 
       code_index = 1
       name_index = 2
       county_index = 3
       tally_index = 5
 
-      if y == 2003 || y == 2004
+      if y == 2004 || y == 2005
         code_index = 2
         name_index = 3
         county_index = 0
@@ -104,25 +104,25 @@ namespace :db do
         code = sheet.cell(i, code_index)[0, 4] if sheet.cell(i, code_index)
         name = sheet.cell(i, name_index)
         county = sheet.cell(i, county_index)
-        
-        if code && name
-          d = DistrictDimension.first_or_create({ code: code }, { name: name, county: county })
-                                                 
-          count = tally_index
-          all = GradeDimension.all
-          all.each do |g|
-            if t.id && d.id && g.id
-              enrollment = sheet.cell(i, count).to_i
-              EnrollmentFact.first_or_create(
-                time_dimension: t,
-                district_dimension: d,
-                grade_dimension: g,
-                enrollment: enrollment
-              ) 
-            end
 
-            count += 1
+        next unless code && name
+
+        d = DistrictDimension.first_or_create({ code: code }, name: name, county: county)
+
+        count = tally_index
+        all = GradeDimension.all
+        all.each do |g|
+          if t.id && d.id && g.id
+            enrollment = sheet.cell(i, count).to_i
+            EnrollmentFact.first_or_create(
+              time_dimension: t,
+              district_dimension: d,
+              grade_dimension: g,
+              enrollment: enrollment
+            )
           end
+
+          count += 1
         end
       end
     end

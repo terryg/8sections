@@ -31,7 +31,7 @@ class App < Sinatra::Base
     @districts = DistrictDimension.all(name: districts)
 
     @grades = GradeDimension.all(name: grades)
-    @years = TimeDimension.all(:year.gte => 2003, :order => [:id.asc])
+    @years = TimeDimension.all(:year.gte => 2004, :order => [:id.asc])
 
     @series = []
     @districts.each do |d|
@@ -194,6 +194,30 @@ class App < Sinatra::Base
     end
 
     haml :salaries
+  end
+
+  get '/student-teacher-ratio' do
+    districts = ['Swampscott']
+    districts = params[:districts].split(',') if params[:districts]
+
+    @districts = DistrictDimension.all(name: districts)
+
+    @years = TimeDimension.all(:year.gte => 1997, :year.lte => 2018, :order => [:year.asc])
+    @labels = @years.collect { |y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse }
+
+    @series = []
+    @districts.each do |d|
+      facts = SalaryFact.all(time_dimension_id: @years.collect(&:id),
+                             district_dimension_id: d.id)
+      facts.sort! { |a, b| a.time_dimension.year <=> b.time_dimension.year }
+      @series.push(facts.collect(&:full_time_employees))
+    end
+
+    facts = EnrollmentFact.aggregate(fields: [:enrollment.sum, :time_dimension_id],
+
+                                     district_dimension_id: d.id,
+                                     grade_dimension_id: @grades.collect(&:id),
+                                     order: [:time_dimension_id.asc])
   end
 
   def set_instance_variables
