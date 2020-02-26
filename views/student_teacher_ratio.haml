@@ -10,7 +10,7 @@
     labels: [#{@years.collect{|y| y.year}.join(",")}],
     series: [
     - @series.each do |series|
-      = "[#{series.collect{|s| s[0]}.join(',')}],"
+      = "[#{series.collect{|s| s[0].round(2)}.join(',')}],"
     ]
     }, {
     lineSmooth: Chartist.Interpolation.none({
@@ -18,7 +18,7 @@
     }),
     axisY: {
     high: 20,
-    low: 0
+    low: 10
     }});
     
 %div

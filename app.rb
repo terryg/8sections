@@ -197,12 +197,12 @@ class App < Sinatra::Base
   end
 
   get '/student-teacher-ratio' do
-    districts = ['Swampscott']
+    districts = ['swampscott']
     districts = params[:districts].split(',') if params[:districts]
 
     @districts = DistrictDimension.all(name: districts)
 
-    @years = TimeDimension.all(:year.gte => 1997, :year.lte => 2018, :order => [:year.asc])
+    @years = TimeDimension.all(:year.gte => 2004, :year.lte => 2018, :order => [:year.asc])
     @labels = @years.collect { |y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse }
 
     @series = []
@@ -210,14 +210,21 @@ class App < Sinatra::Base
       facts = SalaryFact.all(time_dimension_id: @years.collect(&:id),
                              district_dimension_id: d.id)
       facts.sort! { |a, b| a.time_dimension.year <=> b.time_dimension.year }
-      @series.push(facts.collect(&:full_time_employees))
+
+      employees = facts.collect(&:full_time_employees)
+
+      facts = EnrollmentFact.aggregate(fields: [:enrollment.sum, :time_dimension_id],
+                                       district_dimension_id: d.id,
+                                       order: [:time_dimension_id.asc])
+      facts.each_with_index do |val, index|
+        val[0] = val[0].to_f / employees[index].to_f
+        val << TimeDimension.first(id: val[1]).year
+      end
+
+      @series.push(facts)
     end
 
-    facts = EnrollmentFact.aggregate(fields: [:enrollment.sum, :time_dimension_id],
-
-                                     district_dimension_id: d.id,
-                                     grade_dimension_id: @grades.collect(&:id),
-                                     order: [:time_dimension_id.asc])
+    haml :student_teacher_ratio
   end
 
   def set_instance_variables
