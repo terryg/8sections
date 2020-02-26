@@ -1,0 +1,47 @@
+- if @districts[0].primary
+  %style
+    \.ct-series-a .ct-line, .ct-series-a .ct-point, .ct-slice-donut { stroke: #{@districts[0].primary_color}; }
+
+%span
+  Student Teacher Ratio 2004-2018 for #{@districts[0].name.capitalize}
+%div{class: 'ct-chart ct-golden-section', id: 'chart1'}
+  %script
+    new Chartist.Line('#chart1', {
+    labels: [#{@years.collect{|y| y.year}.join(",")}],
+    series: [
+    - @series.each do |series|
+      = "[#{series.collect{|s| s[0]}.join(',')}],"
+    ]
+    }, {
+    lineSmooth: Chartist.Interpolation.none({
+    fillHoles: false
+    }),
+    axisY: {
+    high: 20,
+    low: 0
+    }});
+    
+%div
+  Raw Data
+
+%div{class: 'table-responsive'}   
+  %table{class: 'table table-striped'}   
+    %thead
+      %th
+      - @years.each do |year|
+        %th
+          #{year.year}
+
+    %tbody
+      - @districts.each_with_index do |d, i|
+        %tr
+          %td
+            = d.name
+          - @series[i].each do |s|
+            %td= s[0].round(2)
+              
+Source
+
+%a{href: 'http://www.doe.mass.edu/infoservices/reports/enroll/'}
+  Mass DESE Enrollment Data         
+
