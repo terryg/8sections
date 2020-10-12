@@ -24,9 +24,7 @@ class App < Sinatra::Base
       grades.push(g.name) unless params[g.name].nil?
     end
 
-    if grades.empty?
-      grades = %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22]
-    end
+    grades = %w[PK K GR1 GR2 GR3 GR4 GR5 GR6 GR7 GR8 GR9 GR10 GR11 GR12 22] if grades.empty?
 
     @districts = DistrictDimension.all(name: districts)
 
@@ -35,6 +33,7 @@ class App < Sinatra::Base
 
     @series = []
     @districts.each do |d|
+      puts "D #{d.id}"
       facts = EnrollmentFact.aggregate(fields: [:enrollment.sum, :time_dimension_id],
 
                                        district_dimension_id: d.id,
@@ -43,7 +42,7 @@ class App < Sinatra::Base
       facts.each do |f|
         f << TimeDimension.first(id: f[1]).year
       end
-      @series.push(facts)
+      @series.push(facts) if facts
     end
 
     @high = 0
@@ -56,6 +55,7 @@ class App < Sinatra::Base
     end
 
     @series.each do |y|
+      puts "Y #{y}"
       n = y[0].length
 
       y_bar = y[0].reduce(0) { |sum, i| sum + i } / n

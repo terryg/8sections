@@ -11,13 +11,15 @@ require 'sinatra'
 
 configure { set :server, :puma }
 
-# DataMapper::Logger.new($stdout, :debug)
-DataMapper::Model.raise_on_save_failure = true
+#DataMapper::Logger.new($stdout, :debug)
+#DataMapper::Model.raise_on_save_failure = true
 DataMapper.setup(:default, ENV['DATABASE_URL'])
 
+require_relative './models/school_enrollment_fact'
 require_relative './models/enrollment_fact'
 require_relative './models/salary_fact'
 require_relative './models/district_dimension'
+require_relative './models/school_dimension'
 
 DataMapper.finalize
 DataMapper.auto_upgrade!

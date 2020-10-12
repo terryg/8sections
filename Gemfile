@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-ruby '2.5.5'
+ruby '2.7.0'
 
 source 'https://rubygems.org'
 
@@ -15,6 +15,9 @@ gem 'rack', '>= 2.0.8'
 gem 'rake'
 gem 'roo', '~> 2.8.0'
 gem 'roo-xls'
-gem 'rubocop'
-gem 'shotgun'
 gem 'sinatra', '>= 2.0.2'
+
+group :development do
+  gem 'rubocop'
+  gem 'shotgun'
+end
