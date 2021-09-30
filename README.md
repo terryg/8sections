@@ -6,6 +6,8 @@ https://8sections.org
 ## Getting Started
 
 ````
+$ sudo apt update
+$ sudo apt install libpq-dev postgresql-server-dev-13 ruby-dev -y
 $ git clone git@github.com:terryg/8sections.git
 $ cd 8sections
 $ bundle install
