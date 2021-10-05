@@ -11,8 +11,8 @@ require 'sinatra'
 
 configure { set :server, :puma }
 
-#DataMapper::Logger.new($stdout, :debug)
-#DataMapper::Model.raise_on_save_failure = true
+# DataMapper::Logger.new($stdout, :debug)
+# DataMapper::Model.raise_on_save_failure = true
 DataMapper.setup(:default, ENV['DATABASE_URL'])
 
 require_relative './models/school_enrollment_fact'
