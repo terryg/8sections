@@ -78,7 +78,7 @@ namespace :db do
       end
     end
   end
-  
+
   desc 'extract, transform, load enrollment'
   task :etl_enrollment_district_grade do
     puts '--- now do enrollment ---'
@@ -89,107 +89,127 @@ namespace :db do
 
       ext = 'xls'
       ext = 'xlsx' if y > 2012
-          d = DistrictDimension.first_or_create({ code: code },
-                                                name: name.downcase,
-                                                county: county)
 
-          count = tally_index
-          all = GradeDimension.all
-          all.each do |g|
-            if t.id && d.id && g.id
-              enrollment = sheet.cell(i, count).to_i
-              EnrollmentFact.first_or_create(
-                time_dimension: t,
-                district_dimension: d,
-                grade_dimension: g,
-                enrollment: enrollment
-              )
-            end
+      code_index = 1
+      name_index = 2
+      county_index = 3
+      tally_index = 5
 
-            count += 1
-          end
-        end
+      if [2003, 2004].include?(y)
+        code_index = 2
+        name_index = 3
+        county_index = 0
+        tally_index = 4
       end
-    end
 
-    desc 'Populate school enrollment facts.'
-    task :school do
-      puts '--- now do enrollment by school ---'
+      xl = Roo::Spreadsheet.open("./data/District-Grade/#{y}.#{ext}", extension: ext.to_sym)
 
-      (2003..2020).each do |y|
-        t = TimeDimension.first_or_create(year: y)
-        puts "#{t.id} #{y}"
-        
-        ext = 'xls'
-        ext = 'xlsx' if y > 2012
+      sheet = xl.sheet(0)
 
-        district_code_index = 2
-        district_name_index = 3
-        school_code_index = 4
-        school_name_index = 5
-        tally_index = 22
-        offset = 1
-        trim = 1
-        
-        if y == 2004
-          tally_index = 21
-        end
+      (sheet.first_row..sheet.last_row).each do |i|
+        code = sheet.cell(i, code_index)[0, 4] if sheet.cell(i, code_index)
+        name = sheet.cell(i, name_index)
+        county = sheet.cell(i, county_index)
 
-        if y == 2005
-          district_code_index = 1
-          district_name_index = 2
-          school_code_index = 3
-          school_name_index = 4
-          tally_index = 22
-          offset = 6
-        end
-        
-        if y >= 2006
-          district_code_index = 1
-          district_name_index = 2
-          school_code_index = 3
-          school_name_index = 4
-          tally_index = 6
-          offset = 8
-          trim = 2
-        end
+        next unless code && name
 
-        xl = Roo::Spreadsheet.open("./data/District-Grade/#{y}.#{ext}", extension: ext.to_sym)
-
-        sheet = xl.sheet(0)
-
-        (sheet.first_row+offset..sheet.last_row-trim).each do |i|
-          district_code = sheet.cell(i, district_code_index)[0, 4] if sheet.cell(i, district_code_index)
-          district_name = sheet.cell(i, district_name_index)
-          school_code = sheet.cell(i, school_code_index)[0, 6]
-          school_name = sheet.cell(i, school_name_index)
-          enrollment = sheet.cell(i, tally_index)
-          
-          #puts "D CODE #{district_code}"
-          #puts "D NAME #{district_name}"
-          #puts "S CODE #{school_code}"
-          #puts "S NAME #{school_name}"
-          #puts "ENROLL #{enrollment}"
+        d = DistrictDimension.first_or_create({ code: code },
+                                              name: name,
+                                              county: county)
 
 
-          next unless district_code && district_name && school_code && school_name
-
-          d = DistrictDimension.first_or_create({ code: district_code },
-                                                name: district_name.downcase)
-          s = SchoolDimension.first_or_create({ code: school_code },
-                                              name: school_name.downcase)
-
-          if t.id && d.id && s.id
-            SchoolEnrollmentFact.first_or_create(
+        count = tally_index
+        all = GradeDimension.all
+        all.each do |g|
+          if t.id && d.id && g.id
+            enrollment = sheet.cell(i, count).to_i
+            EnrollmentFact.first_or_create(
               time_dimension: t,
               district_dimension: d,
-              school_dimension: s,
+              grade_dimension: g,
               enrollment: enrollment
             )
           end
+
+          count += 1
         end
       end
     end
   end
-end
 
+  desc 'Populate school enrollment facts.'
+  task :etl_enrollment_school_grade do
+    puts '--- now do enrollment by school ---'
+
+    (2003..2021).each do |y|
+      t = TimeDimension.first_or_create(year: y)
+      puts "#{t.id} #{y}"
+
+      ext = 'xls'
+      ext = 'xlsx' if y > 2012
+
+      district_code_index = 2
+      district_name_index = 3
+      school_code_index = 4
+      school_name_index = 5
+      tally_index = 22
+      offset = 1
+      trim = 1
+
+      tally_index = 21 if y == 2004
+
+      if y == 2005
+        district_code_index = 1
+        district_name_index = 2
+        school_code_index = 3
+        school_name_index = 4
+        tally_index = 22
+        offset = 6
+      end
+
+      if y >= 2006
+        district_code_index = 1
+        district_name_index = 2
+        school_code_index = 3
+        school_name_index = 4
+        tally_index = 6
+        offset = 8
+        trim = 2
+      end
+
+      xl = Roo::Spreadsheet.open("./data/School-Grade--#{y}.#{ext}", extension: ext.to_sym)
+
+      sheet = xl.sheet(0)
+
+      (sheet.first_row + offset..sheet.last_row - trim).each do |i|
+        district_code = sheet.cell(i, district_code_index)[0, 4] if sheet.cell(i, district_code_index)
+        district_name = sheet.cell(i, district_name_index)
+        school_code = sheet.cell(i, school_code_index)[0, 6]
+        school_name = sheet.cell(i, school_name_index)
+        enrollment = sheet.cell(i, tally_index)
+
+        # puts "D CODE #{district_code}"
+        # puts "D NAME #{district_name}"
+        # puts "S CODE #{school_code}"
+        # puts "S NAME #{school_name}"
+        # puts "ENROLL #{enrollment}"
+
+        next unless district_code && district_name && school_code && school_name
+
+        d = DistrictDimension.first_or_create({ code: district_code },
+                                              name: district_name.downcase)
+        s = SchoolDimension.first_or_create({ code: school_code },
+                                            name: school_name.downcase)
+
+        next unless t.id && d.id && s.id
+
+        SchoolEnrollmentFact.first_or_create(
+          time_dimension: t,
+          district_dimension: d,
+          school_dimension: s,
+          enrollment: enrollment
+        )
+      end
+    end
+  end
+end
