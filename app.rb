@@ -91,7 +91,7 @@ class App < Sinatra::Base
 
     @districts = DistrictDimension.all(name: districts)
 
-    @years = TimeDimension.all(:year.gte => 1997, :year.lte => 2018, :order => [:year.asc])
+    @years = TimeDimension.all(:year.gte => 1998, :year.lte => 2019, :order => [:year.asc])
     @labels = @years.collect { |y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse }
 
     @series = []
@@ -141,7 +141,7 @@ class App < Sinatra::Base
     @districts = DistrictDimension.all(name: districts)
     @districts.push(DistrictDimension.first(code: '0000'))
 
-    @years = TimeDimension.all(:year.gte => 1997, :year.lte => 2018, :order => [:year.asc])
+    @years = TimeDimension.all(:year.gte => 1998, :year.lte => 2019, :order => [:year.asc])
     @labels = @years.collect { |y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse }
 
     @series = []
@@ -202,8 +202,10 @@ class App < Sinatra::Base
 
     @districts = DistrictDimension.all(name: districts)
 
-    @years = TimeDimension.all(:year.gte => 2004, :year.lte => 2018, :order => [:year.asc])
+    @years = TimeDimension.all(:year.gte => 2003, :year.lte => 2019, :order => [:year.asc])
     @labels = @years.collect { |y| y.year.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse }
+
+    puts "LABELS #{@labels}"
 
     @series = []
     @districts.each do |d|
@@ -213,15 +215,23 @@ class App < Sinatra::Base
 
       employees = facts.collect(&:full_time_employees)
 
-      facts = EnrollmentFact.aggregate(fields: [:enrollment.sum, :time_dimension_id],
+      facts = EnrollmentFact.aggregate(fields: [:enrollment.sum,
+                                                :time_dimension_id],
                                        district_dimension_id: d.id,
                                        order: [:time_dimension_id.asc])
+
+      result = []
+
       facts.each_with_index do |val, index|
+        next unless employees[index]
+
+        puts "fact --> #{val} #{index} #{employees[index]}"
         val[0] = val[0].to_f / employees[index]
         val << TimeDimension.first(id: val[1]).year
+        result << val
       end
 
-      @series.push(facts)
+      @series.push(result)
     end
 
     haml :student_teacher_ratio

@@ -37,11 +37,11 @@ namespace :db do
   task :etl_average_salary do
     puts '--- extract, transform, load salary reports ---'
 
-    (1997..2018).each do |y|
+    (1998..2019).each do |y|
       # if false
       time_dimension = TimeDimension.first_or_create(year: y)
 
-      doc = Nokogiri::HTML.parse(open("./data/Average-Salary--#{y}.html"))
+      doc = Nokogiri::HTML.parse(open("./data/Average-Salary/#{y}.html"))
       rows = doc.xpath('//table/tbody/tr')
       details = rows.collect do |row|
         detail = {}
