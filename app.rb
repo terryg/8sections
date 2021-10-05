@@ -82,9 +82,6 @@ class App < Sinatra::Base
       puts (m / y_bar.to_f).to_s
     end
 
-    puts "DISTRICTS"
-    puts @districts
-    
     haml :enrollment
   end
 
