@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: eightsections
+      POSTGRES_USER: eightsections
+      POSTGRES_DB: eightsections_development
+      PGDATA: /pgdata
+    volumes:
+      - pgdata:/pgdata
+
+  server:
+    image: eightsections_server:latest
+    build:
+      context: .
+      target: server
+    environment:
+      DATABASE_URL: postgresql://eightsections:eightsections@db:5432/eightsections_development?sslmode=disable
+    volumes:
+      - .:/app
+    ports:
+      - 9393:9393
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
