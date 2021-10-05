@@ -54,27 +54,29 @@ namespace :db do
         ].each do |name, xpath|
           detail[name] = row.at_xpath(xpath).to_s.strip
         end
+        detail[:year] = y
+        detail
+      end
 
-        details.each do |d|
-          name = d[:name]
-          code = d[:code][0, 4]
-          total = d[:total].gsub(/\D/, '').to_i
-          average = d[:average].gsub(/\D/, '').to_i
-          fte = d[:fte].to_i
+      details.each do |d|
+        name = d[:name]
+        code = d[:code][0, 4]
+        total = d[:total].gsub(/\D/, '').to_i
+        average = d[:average].gsub(/\D/, '').to_i
+        fte = d[:fte].to_i
 
-          name = 'state total' if name.empty?
+        name = 'state total' if name.empty?
 
-          district_dimension =
-            DistrictDimension.first_or_create({ code: code },
-                                              name: name.downcase)
-          SalaryFact.first_or_create(
-            total: total,
-            average: average,
-            full_time_employees: fte,
-            district_dimension: district_dimension,
-            time_dimension: time_dimension
-          )
-        end
+        district_dimension =
+          DistrictDimension.first_or_create({ code: code },
+                                            name: name.downcase)
+        SalaryFact.first_or_create(
+          total: total,
+          average: average,
+          full_time_employees: fte,
+          district_dimension: district_dimension,
+          time_dimension: time_dimension
+        )
       end
     end
   end
@@ -116,7 +118,6 @@ namespace :db do
         d = DistrictDimension.first_or_create({ code: code },
                                               name: name,
                                               county: county)
-
 
         count = tally_index
         all = GradeDimension.all
