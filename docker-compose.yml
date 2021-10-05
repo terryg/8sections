@@ -8,12 +8,14 @@ services:
       PGDATA: /pgdata
     volumes:
       - pgdata:/pgdata
+    ports:
+      - 5432:5432
 
   server:
     image: eightsections_server:latest
     build:
       context: .
-      target: server
+      target: eightsections_server
     environment:
       DATABASE_URL: postgresql://eightsections:eightsections@db:5432/eightsections_development?sslmode=disable
     volumes:

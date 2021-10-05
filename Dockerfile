@@ -1,6 +1,6 @@
-FROM ruby:2.5 as server
+FROM ruby:2.7 as eightsections_server
 
-RUN apt-get update -qq && apt-get install -y build-essential libpq-dev postgresql-server-dev-11
+RUN apt-get update -qq && apt-get install -y build-essential ruby-dev libpq-dev postgresql-server-dev-13
 
 RUN bundle config --global frozen 1
 
