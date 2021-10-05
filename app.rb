@@ -217,7 +217,7 @@ class App < Sinatra::Base
                                        district_dimension_id: d.id,
                                        order: [:time_dimension_id.asc])
       facts.each_with_index do |val, index|
-        val[0] = val[0].to_f / employees[index].to_f
+        val[0] = val[0].to_f / employees[index]
         val << TimeDimension.first(id: val[1]).year
       end
 
