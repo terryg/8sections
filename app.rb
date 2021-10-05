@@ -29,7 +29,7 @@ class App < Sinatra::Base
     @districts = DistrictDimension.all(name: districts)
 
     @grades = GradeDimension.all(name: grades)
-    @years = TimeDimension.all(:year.gte => 2004, :order => [:id.asc])
+    @years = TimeDimension.all(:year.gte => 2003, :order => [:id.asc])
 
     @series = []
     @districts.each do |d|
