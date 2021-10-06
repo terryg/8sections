@@ -1,7 +1,7 @@
 # 8sections
 Visualizing public data from the Commonwealth of Massachusetts.
 
-https://8sections.org
+https://www.8sections.org
 
 ## Getting Started
 
